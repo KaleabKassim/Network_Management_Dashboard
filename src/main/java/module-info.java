@@ -12,5 +12,6 @@ module com.lan.network_management {
     requires com.almasb.fxgl.all;
 
     opens com.lan.network_management to javafx.fxml;
+    opens com.lan.network_management.controller to javafx.fxml;
     exports com.lan.network_management;
 }
