@@ -2,13 +2,42 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.lan.network_management.controller.DashboardController">
     <top>
-        <Button fx:id="scanButton" text="Scan Devices" maxWidth="Infinity"/>
+        <HBox spacing="8.0">
+            <padding>
+                <Insets topRightBottomLeft="8.0"/>
+            </padding>
+            <children>
+                <ComboBox fx:id="interfaceCombo" promptText="Select network interface"/>
+                <TextField fx:id="subnetsField" promptText="Subnets (e.g. 192.168.1,10.0.0.0/24)" prefWidth="340.0"/>
+                <Button fx:id="scanButton" text="Scan Devices"/>
+                <ProgressIndicator fx:id="scanProgress" visible="false" prefWidth="22.0" prefHeight="22.0"/>
+            </children>
+        </HBox>
     </top>
     <center>
-        <ListView fx:id="deviceList"/>
+        <TabPane>
+            <tabs>
+                <Tab text="Devices" closable="false">
+                    <content>
+                        <ListView fx:id="deviceList"/>
+                    </content>
+                </Tab>
+                <Tab text="Topology" closable="false">
+                    <content>
+                        <StackPane>
+                            <children>
+                                <Pane fx:id="topologyPane" style="-fx-background-color: #f8f9fa;"/>
+                            </children>
+                        </StackPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
     </center>
 </BorderPane>

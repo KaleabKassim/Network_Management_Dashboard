@@ -35,4 +35,21 @@ public class DeviceDiscoveryService {
         executor.shutdown();
         return devices;
     }
+
+    public List<Device> scanNetworks(List<String> subnets, int timeout) {
+        List<Device> all = new ArrayList<>();
+        if (subnets == null || subnets.isEmpty()) return all;
+        ExecutorService outer = Executors.newFixedThreadPool(Math.min(subnets.size(), 8));
+        List<Future<List<Device>>> futures = new ArrayList<>();
+        for (String subnet : subnets) {
+            futures.add(outer.submit(() -> scanNetwork(subnet, timeout)));
+        }
+        for (Future<List<Device>> f : futures) {
+            try {
+                all.addAll(f.get());
+            } catch (Exception ignored) {}
+        }
+        outer.shutdown();
+        return all;
+    }
 }

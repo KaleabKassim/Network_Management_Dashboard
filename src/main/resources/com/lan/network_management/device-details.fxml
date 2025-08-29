@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.lan.network_management.controller.DeviceDetailsController"
+      spacing="10.0">
+    <padding>
+        <Insets topRightBottomLeft="12.0"/>
+    </padding>
+    <children>
+        <GridPane hgap="10.0" vgap="8.0">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="35"/>
+                <ColumnConstraints percentWidth="65"/>
+            </columnConstraints>
+            <children>
+                <Label text="IP:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label fx:id="ipLabel" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Hostname:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <Label fx:id="hostnameLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="MAC Address:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <Label fx:id="macLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Reachability:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <Label fx:id="reachableLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Last Ping:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <Label fx:id="pingLabel" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            </children>
+        </GridPane>
+        <HBox spacing="8.0">
+            <children>
+                <Button fx:id="pingNowButton" text="Ping Now"/>
+            </children>
+        </HBox>
+        <Separator />
+        <GridPane hgap="10.0" vgap="8.0">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="35"/>
+                <ColumnConstraints percentWidth="65"/>
+            </columnConstraints>
+            <children>
+                <Label text="Ports (e.g. 22,80,443,8000-8100):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="portsField" promptText="22,80,443,8000-8100" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            </children>
+        </GridPane>
+        <HBox spacing="8.0">
+            <children>
+                <Button fx:id="scanPortsButton" text="Scan Ports"/>
+                <ProgressIndicator fx:id="portsProgress" visible="false" prefWidth="22.0" prefHeight="22.0"/>
+            </children>
+        </HBox>
+        <Label text="Open Ports:" />
+        <ListView fx:id="openPortsList" prefHeight="180.0" />
+    </children>
+</VBox>
+
+
