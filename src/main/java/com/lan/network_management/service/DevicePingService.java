@@ -4,12 +4,6 @@ import java.net.InetAddress;
 
 public class DevicePingService {
 
-    /**
-     * Pings a device to check if it's reachable.
-     * @param host the IP or hostname
-     * @param timeout timeout in milliseconds
-     * @return true if reachable, false otherwise
-     */
     public boolean ping(String host, int timeout) {
         try {
             InetAddress inet = InetAddress.getByName(host);

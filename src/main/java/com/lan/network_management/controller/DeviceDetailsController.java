@@ -145,7 +145,7 @@ public class DeviceDetailsController {
                 } catch (Exception ignored) {}
             }
         }
-        // de-duplicate
+
         java.util.Set<Integer> set = new java.util.LinkedHashSet<>(out);
         return new java.util.ArrayList<>(set);
     }

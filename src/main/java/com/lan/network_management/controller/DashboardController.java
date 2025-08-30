@@ -51,7 +51,6 @@ public class DashboardController {
 
     @FXML
     private void initialize() {
-        // Populate interfaces
         if (interfaceCombo != null) {
             interfaceCombo.getItems().setAll(NetworkUtils.getInterfaces());
             if (!interfaceCombo.getItems().isEmpty()) {
@@ -89,8 +88,6 @@ public class DashboardController {
 
         scanButton.setOnAction(e -> scanDevices());
         scanDevices();
-
-        // Add resize listener for topology pane
         if (topologyPane != null) {
             topologyPane.widthProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal.doubleValue() > 0 && !observableDevices.isEmpty()) {
@@ -102,8 +99,7 @@ public class DashboardController {
                     renderTopology();
                 }
             });
-            
-            // Handle initial layout
+
             topologyPane.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal.getWidth() > 0 && newVal.getHeight() > 0 && !observableDevices.isEmpty()) {
                     renderTopology();
@@ -227,13 +223,13 @@ public class DashboardController {
         for (String token : raw.split(",")) {
             String t = token.trim();
             if (t.isEmpty()) continue;
-            // Accept forms: a.b.c, a.b.c., a.b.c.0/24
+
             if (t.endsWith("/24")) {
                 t = t.substring(0, t.length() - 3);
                 if (t.endsWith(".0")) t = t.substring(0, t.length() - 2);
             }
             if (t.endsWith(".")) t = t.substring(0, t.length() - 1);
-            // Validate 3 octets
+
             String[] parts = t.split("\\.");
             if (parts.length == 3) {
                 list.add(parts[0] + "." + parts[1] + "." + parts[2]);
@@ -250,7 +246,6 @@ public class DashboardController {
 
         topologyPane.getChildren().clear();
 
-        // Gateway positioning - centered at the top
         double gwX = width / 2.0;
         double gwY = Math.max(80.0, height * 0.15);
         double gwRadius = Math.min(25.0, Math.min(width, height) * 0.03);
@@ -261,45 +256,33 @@ public class DashboardController {
             gw.setStrokeWidth(2);
             Text gwLabel = new Text("Gateway\n" + gatewayIp);
             gwLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
-            // Center the text above the gateway
             gwLabel.setX(gwX - gwLabel.getLayoutBounds().getWidth() / 2);
             gwLabel.setY(gwY - gwRadius - 10);
             topologyPane.getChildren().addAll(gw, gwLabel);
-        } else {
-            Text noGw = new Text("Gateway not detected");
-            noGw.setStyle("-fx-font-size: 14px; -fx-fill: #666;");
-            noGw.setX(gwX - noGw.getLayoutBounds().getWidth() / 2);
-            noGw.setY(gwY);
-            topologyPane.getChildren().add(noGw);
         }
 
         int n = observableDevices.size();
         if (n == 0) return;
 
-        // Calculate optimal radius based on available space and number of devices
-        double maxRadius = Math.min(width, height) * 0.35;
+        double maxRadius = Math.min(width, height) * 0.40;
         double minRadius = Math.min(width, height) * 0.25;
-        double radius = Math.max(minRadius, Math.min(maxRadius, Math.min(width, height) / (2.0 + n * 0.1)));
-        
-        // Center coordinates for the entire topology
+        double radius = Math.max(minRadius, Math.min(maxRadius, Math.min(width, height) / (2.0 + n * 0.08)));
+
         double centerX = width / 2.0;
-        double centerY = height / 2.0;
+        double centerY = height / 2.0 + 40;
+
+        double angleOffset = Math.PI / n;
 
         for (int i = 0; i < n; i++) {
             Device d = observableDevices.get(i);
-            // Skip rendering the gateway again if it appears as a scanned device
-            if (gatewayIp != null && !gatewayIp.isEmpty() && gatewayIp.equals(d.getIp())) {
-                continue;
-            }
-            // Calculate position in a circle around the center
-            double angle = (2 * Math.PI * i) / n;
+
+            if (gatewayIp != null && gatewayIp.equals(d.getIp())) continue;
+
+            double angle = angleOffset + (2 * Math.PI * i) / n;
             double x = centerX + radius * Math.cos(angle);
             double y = centerY + radius * Math.sin(angle);
 
-            // Ensure devices don't go outside the visible area
             double nodeRadius = Math.min(15.0, Math.min(width, height) * 0.02);
-            x = Math.max(nodeRadius + 10, Math.min(width - nodeRadius - 10, x));
-            y = Math.max(nodeRadius + 10, Math.min(height - nodeRadius - 10, y));
 
             if (gatewayIp != null && !gatewayIp.isEmpty()) {
                 double dx = x - gwX;
@@ -307,6 +290,7 @@ public class DashboardController {
                 double dist = Math.max(1.0, Math.hypot(dx, dy));
                 double ux = dx / dist;
                 double uy = dy / dist;
+
                 double startX = gwX + ux * (gwRadius + 4.0);
                 double startY = gwY + uy * (gwRadius + 4.0);
                 double endX = x - ux * (nodeRadius + 4.0);
@@ -323,27 +307,15 @@ public class DashboardController {
             node.setStroke(Color.DARKGRAY);
             node.setStrokeWidth(1.5);
 
-            String host = d.getHostname() != null && !d.getHostname().isEmpty() ? d.getHostname() : d.getIp();
+            String host = (d.getHostname() != null && !d.getHostname().isEmpty()) ? d.getHostname() : d.getIp();
             String ping = d.isReachable() ? (d.getPingTime() + " ms") : "-";
-            // Device label with better positioning
             Text label = new Text(host + "\n" + ping);
             label.setStyle("-fx-font-size: 11px;");
-            
-            // Position label to avoid overlapping
+
             double labelX = x - label.getLayoutBounds().getWidth() / 2;
-            double labelY = y + nodeRadius + 20;
-            
-            // Adjust label position if it goes outside bounds
-            if (labelY + label.getLayoutBounds().getHeight() > height - 10) {
-                labelY = y - nodeRadius - 10;
-            }
-            if (labelX < 5) {
-                labelX = 5;
-            } else if (labelX + label.getLayoutBounds().getWidth() > width - 5) {
-                labelX = width - label.getLayoutBounds().getWidth() - 5;
-            }
-            
-            label.setX(labelX);
+            double labelY = (Math.sin(angle) > 0) ? (y + nodeRadius + 15) : (y - nodeRadius - 5);
+
+            label.setX(Math.max(5, Math.min(width - label.getLayoutBounds().getWidth() - 5, labelX)));
             label.setY(labelY);
 
             topologyPane.getChildren().addAll(node, label);

@@ -12,7 +12,6 @@ module com.lan.network_management {
     requires com.almasb.fxgl.all;
 
     requires static lombok;
-    // nmap4j is not modular; rely on classpath via JitPack
 
     opens com.lan.network_management to javafx.fxml;
     opens com.lan.network_management.controller to javafx.fxml;
